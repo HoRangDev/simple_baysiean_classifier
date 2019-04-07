@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "simple_baysiean_classifier", "simple_baysiean_classifier.pyproj", "{08121861-EFCF-4FA6-9FDE-DECEA3AB106D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08121861-EFCF-4FA6-9FDE-DECEA3AB106D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08121861-EFCF-4FA6-9FDE-DECEA3AB106D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8C24CCC-0CDA-4ABC-B637-B53F6B109D6A}
+	EndGlobalSection
+EndGlobal
