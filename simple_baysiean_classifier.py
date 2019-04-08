@@ -1,5 +1,6 @@
 import copy
 import math
+import matplotlib.pyplot as plt
 
 def load_datas(filePath):
     # feature_1 feature_2 feature_3 feature_4 class
@@ -203,6 +204,35 @@ def decision_func(n_dims, input, inv_covariance_mat, mean_vector, omega):
     constant_term *= (-0.5)
     return input_term + constant_term + log_term;
 
+def print_NbyN_matrix(n_dims, mat):
+    for col in range(n_dims):
+        print('col ', col, ': ', mat[col])
+
+def plot_2D_samples(samples):
+    for sample in samples:
+        class_of_sample = sample[4]
+        if (class_of_sample == 1):
+            plt.plot(sample[0], sample[1], 'go', label='class 1')
+        elif (class_of_sample == 2):
+            plt.plot(sample[0], sample[1], 'ro', label='class 2')
+        else:
+            plt.plot(sample[0], sample[1], 'bo', label='class 3')
+
+def plot_2D_boundaries(x_range, y_range, step, epsilon, inv_cov_mat_c1, inv_cov_mat_c2, mean_vec_c1, mean_vec_c2, omega):
+    decision_x_set = []
+    decision_y_set = []
+    x = x_range[0]
+    while (x <= x_range[1]):
+        y = y_range[0]
+        while (y <= y_range[1]):
+            decision_val = decision_func(2, [x, y], inv_cov_mat_c1, mean_vec_c1, omega) - decision_func(2, [x, y], inv_cov_mat_c2, mean_vec_c2, omega)
+            #print("desc val: " , decision_val)
+            if ( (decision_val >= -epsilon) and (decision_val <= epsilon) ):
+                decision_x_set.append(x)
+                decision_y_set.append(y)
+            y+= step
+        x += step
+    plt.plot(decision_x_set, decision_y_set, 'r--')
 
 # 40 samples for training/10 samples for test/ 50 samples for each classes, and total 150 samples for 3 classes
 training_data = load_datas('Iris_train.dat');
@@ -212,6 +242,7 @@ print_datas(test_data)
 
 # HW_1
 # Colum-major matrix
+print('- HW1 -')
 mean_list = []
 covariance_mat_list = []
 inv_convraicne_mat_list = []
@@ -238,4 +269,51 @@ for outter_idx in range(len(test_data)):
             else:
                 confusion_matrix[sample[4]-1][sample[4]-1] += 1
 
-print(confusion_matrix)
+print("HW1: Confusion Matrix")
+print_NbyN_matrix(3, confusion_matrix)
+print('---------------------------------------------------')
+# HW_2
+# Colum-major matrix
+print('- HW2 -')
+mean_list = []
+covariance_mat_list = []
+inv_convraicne_mat_list = []
+for class_idx in range(0, 3):
+    mean_list.append(mean2D(training_data, class_idx, 40))
+    covariance_mat_list.append(covariance_mat_2D(training_data, class_idx, 40, mean_list[class_idx]))
+    inv_convraicne_mat_list.append(inverse_of_2x2_mat(covariance_mat_list[class_idx]))
+
+    
+confusion_matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+for outter_idx in range(len(test_data)):
+    sample = test_data[outter_idx]
+    for class_idx in range(3):
+        if (sample[4] != (class_idx+1)):
+            confusion_val = decision_func(2,
+                                         [sample[0], sample[1], sample[2], sample[3]], 
+                                         inv_convraicne_mat_list[sample[4]-1],
+                                        mean_list[sample[4]-1], 0.33 )
+            confusion_val -= decision_func(2,
+                                           [sample[0], sample[1], sample[2], sample[3]],
+                                           inv_convraicne_mat_list[class_idx],
+                                           mean_list[class_idx], 0.33 )
+            if (confusion_val > 0.0):
+                confusion_matrix[sample[4]-1][class_idx] -= 1
+            else:
+                confusion_matrix[sample[4]-1][sample[4]-1] += 1
+
+print("HW2: Confusion Matrix")
+print_NbyN_matrix(3, confusion_matrix)
+print('---------------------------------------------------')
+
+plt.title("Samples/Decision boundaries")
+plot_2D_samples(test_data)
+for outter_class_idx in range(3):
+    for class_idx in range(3):
+        if (outter_class_idx != class_idx):
+            plot_2D_boundaries([4.0, 8.0], [2.0, 5.0], 0.15,
+                              2,
+                              inv_convraicne_mat_list[outter_class_idx], inv_convraicne_mat_list[class_idx],
+                              mean_list[outter_class_idx], mean_list[class_idx],
+                              0.3333)
+plt.show()
