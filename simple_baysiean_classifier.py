@@ -1,6 +1,8 @@
 import copy
 import math
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import make_interp_spline, BSpline
 
 def load_datas(filePath):
     # feature_1 feature_2 feature_3 feature_4 class
@@ -209,16 +211,24 @@ def print_NbyN_matrix(n_dims, mat):
         print('col ', col, ': ', mat[col])
 
 def plot_2D_samples(samples):
+    class_sample_mask_labels = [['go', 'class 1'], ['ro', 'class 2'], ['bo', 'class 3']]
+    class_samples_x = [[], [], []]
+    class_samples_y = [[], [], []]
+
     for sample in samples:
         class_of_sample = sample[4]
-        if (class_of_sample == 1):
-            plt.plot(sample[0], sample[1], 'go', label='class 1')
-        elif (class_of_sample == 2):
-            plt.plot(sample[0], sample[1], 'ro', label='class 2')
-        else:
-            plt.plot(sample[0], sample[1], 'bo', label='class 3')
+        class_samples_x[class_of_sample - 1].append(sample[0])
+        class_samples_y[class_of_sample - 1].append(sample[1])
 
-def plot_2D_boundaries(x_range, y_range, step, epsilon, inv_cov_mat_c1, inv_cov_mat_c2, mean_vec_c1, mean_vec_c2, omega):
+    plt.plot(class_samples_x[0], class_samples_y[0],
+            class_sample_mask_labels[0][0], label = class_sample_mask_labels[0][1])
+    plt.plot(class_samples_x[1], class_samples_y[1], 
+             class_sample_mask_labels[1][0], label = class_sample_mask_labels[1][1])
+    plt.plot(class_samples_x[2], class_samples_y[2], 
+             class_sample_mask_labels[2][0],label =  class_sample_mask_labels[2][1])
+
+def plot_2D_boundaries(x_range, y_range, step, epsilon, inv_cov_mat_c1, inv_cov_mat_c2, mean_vec_c1, mean_vec_c2, omega, class_idx_c1, class_idx_c2):
+    presets = ['c-', 'm-', 'k-']
     decision_x_set = []
     decision_y_set = []
     x = x_range[0]
@@ -232,7 +242,9 @@ def plot_2D_boundaries(x_range, y_range, step, epsilon, inv_cov_mat_c1, inv_cov_
                 decision_y_set.append(y)
             y+= step
         x += step
-    plt.plot(decision_x_set, decision_y_set, 'r--')
+    plt.plot(decision_x_set, decision_y_set,
+            presets[class_idx_c1 + class_idx_c2-1],
+           label = ('class ' + str(class_idx_c1+1) + ' & class' + str(class_idx_c2+1)))
 
 # 40 samples for training/10 samples for test/ 50 samples for each classes, and total 150 samples for 3 classes
 training_data = load_datas('Iris_train.dat');
@@ -306,14 +318,25 @@ print("HW2: Confusion Matrix")
 print_NbyN_matrix(3, confusion_matrix)
 print('---------------------------------------------------')
 
+plt.figure()
+
+plt.title("Training/Data")
+plot_2D_samples(training_data)
+plt.legend(loc='upper left')
+plt.show()
+
+plt.figure()
 plt.title("Samples/Decision boundaries")
 plot_2D_samples(test_data)
 for outter_class_idx in range(3):
-    for class_idx in range(3):
+    for class_idx in range(outter_class_idx + 1, 3):
         if (outter_class_idx != class_idx):
-            plot_2D_boundaries([4.0, 8.0], [2.0, 5.0], 0.15,
+            plot_2D_boundaries([0.0, 12.0], [0.0, 7.0], 0.1,
                               2,
                               inv_convraicne_mat_list[outter_class_idx], inv_convraicne_mat_list[class_idx],
                               mean_list[outter_class_idx], mean_list[class_idx],
-                              0.3333)
+                              0.3333,
+                              outter_class_idx,
+                              class_idx)
+plt.legend(loc='upper right')
 plt.show()
